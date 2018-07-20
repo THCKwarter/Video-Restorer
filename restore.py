@@ -24,9 +24,12 @@ if int(timeEnd) == 0:
 else:
     frameEnd = ((int(timeEnd)*int(framerate))-1)
 
+# Selecting a repair method
+# method = input('Select a repair method by typing the number. 1 - Denoise, 2 - Deblur')
+
 # Reporting breakpoints
 print("=====")
-print("Capturing frame " + str(frameStart+1) + " to frame " + str(frameEnd+1))
+print("Capturing frame " + str(frameStart) + " to frame " + str(frameEnd))
 print("=====")
 
 # Takes in an input video
@@ -43,9 +46,10 @@ while(currentFrame <= frameEnd):
 
     # Repairs frame and saves it in png file
     # (png is used for its lossless quality)
+    print ('Repairing frame ' + str(currentFrame))
+    fixed = cv2.fastNlMeansDenoisingColored(frame,None,10,10,7,21)
     name = './output/frame' + str(currentFrame) + '.png'
-    print ('Creating...' + name)
-    cv2.imwrite(name, frame)
+    cv2.imwrite(name, fixed)
 
     # To stop duplicate images
     currentFrame += 1
@@ -53,5 +57,3 @@ while(currentFrame <= frameEnd):
 # When everything is done, release the capture
 vid.release()
 cv2.destroyAllWindows()
-
-# Take an image and apply a cleaning filter to it.
