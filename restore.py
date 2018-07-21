@@ -39,6 +39,10 @@ vid = cv2.VideoCapture("input/" + videoName)
 currentFrame = frameStart
 vid.set(1,currentFrame)
 
+# Define the codec and create VideoWriter object
+fourcc = cv2.VideoWriter_fourcc(*'DIVX')
+out = cv2.VideoWriter('./output/restored.avi',fourcc, 24.0, (1920,1080))
+
 # Loop through until the end of the segment
 # specified by the user
 while(currentFrame <= frameEnd):
@@ -48,12 +52,16 @@ while(currentFrame <= frameEnd):
     # (png is used for its lossless quality)
     print ('Repairing frame ' + str(currentFrame))
     fixed = cv2.fastNlMeansDenoisingColored(frame,None,10,10,7,21)
-    name = './output/frame' + str(currentFrame) + '.png'
-    cv2.imwrite(name, fixed)
+    out.write(fixed)
+
+    # Image writing (Troubleshooting)
+    #name = './output/frame' + str(currentFrame) + '.png'
+    #cv2.imwrite(name, fixed)
 
     # To stop duplicate images
     currentFrame += 1
 
 # When everything is done, release the capture
+print("Restoration complete.")
 vid.release()
 cv2.destroyAllWindows()
