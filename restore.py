@@ -3,12 +3,14 @@
 import cv2
 import numpy as np
 
-print("=====")
-print("Video Restorer, Matthew Johnston")
-print("=====")
+print("==============================")
+print("Matthew Johnston")
+print("Senior Project Summer 2018")
+print("Video Restorer")
+print("==============================")
 
 # Get parameters from user
-# input.mp4 parameters: 24fps, 0:36 duration
+# vid.mp4 parameters: 24fps, 0:36 duration
 videoName = input('Enter the file name of the video including the file extension (myvideo.mp4): ')
 duration = input('Enter the duration of the video in seconds: ')
 framerate = input('Enter the frame rate of the video in frames per second: ')
@@ -28,9 +30,9 @@ else:
 # method = input('Select a repair method by typing the number. 1 - Denoise, 2 - Deblur')
 
 # Reporting breakpoints
-print("=====")
+print("==============================")
 print("Capturing frame " + str(frameStart) + " to frame " + str(frameEnd))
-print("=====")
+print("==============================")
 
 # Takes in an input video
 vid = cv2.VideoCapture("input/" + videoName)
@@ -62,6 +64,9 @@ while(currentFrame <= frameEnd):
     currentFrame += 1
 
 # When everything is done, release the capture
-print("Restoration complete.")
+print("==============================")
+print("Restoration complete. Outputting video.")
+print("==============================")
 vid.release()
+out.release()
 cv2.destroyAllWindows()
