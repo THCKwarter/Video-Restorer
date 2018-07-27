@@ -99,8 +99,7 @@ while(currentFrame <= frameEnd):
 
     # Repairs frame and saves it in png file
     # (png is used for its lossless quality)
-    progress = '{0:.2f}'.format((currentFrame+1)/(frameEnd+1)*100)
-    progressReport = ("Progress: " + str(progress) + "% ")
+    progressReport = ("Processing frame: " + str(currentFrame))
     print(progressReport, end="\r")
 
     # Pick filter based on user input
@@ -117,7 +116,7 @@ while(currentFrame <= frameEnd):
         #highpass = frame - unsharp_strength * blurred
         #fixed = frame + highpass
 
-        #frame = color.rgb2gray
+        frame = color.rgb2gray
         frame = convolve2d(frame, psf, 'same')
         frame += 0.1 * frame.std() * np.random.standard_normal(frame.shape)
         fixed = skimage.restoration.unsupervised_wiener(frame, psf)
