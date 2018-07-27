@@ -28,6 +28,8 @@ print("==============================")
 # Get parameters from user
 # vid.mp4 parameters: 1920x1080, 24fps, 0:36 duration
 videoName = input('Enter the file name of the video including the file extension (myvideo.mp4): ')
+#vRes = int(input("Enter the vertical resolution of the video in pixels: "))
+#hRes = int(input("Enter the horizontal resolution of the video in pixels: "))
 duration = int(input('Enter the duration of the video in seconds: '))
 framerate = int(input('Enter the frame rate of the video in frames per second: '))
 frameSeq = ((duration*framerate)-1)
@@ -41,8 +43,6 @@ if timeEnd == 0:
     frameEnd = frameSeq
 else:
     frameEnd = ((timeEnd*framerate)-1)
-#vRes = int(input("Enter the vertical resolution of the video in pixels: "))
-#hRes = int(input("Enter the horizontal resolution of the video in pixels: "))
 #outFile = input("Enter the output name of the video without a file extension: ")
 
 # Selecting a repair method
@@ -60,7 +60,7 @@ elif method == 2:
     print("Debluring selected.")
     #unsharp_strength = 0.8
     #blur_size = 8 # Standard deviation in pixels
-    psf = np.ones((5,5)) / 25
+    psf = (np.ones((5,5)) / 25)
 elif method == 3:
     print("Other")
 
@@ -83,10 +83,12 @@ vid.set(1,currentFrame)
 # Define the codec and create VideoWriter object
 fourcc = cv2.VideoWriter_fourcc(*'DIVX')
 
-# Get output file name
-#filename = input("Enter the output file name without the file extension: ")
-out = cv2.VideoWriter('./output/restored.avi',fourcc, 24.0, (1920,1080))
-#out = cv2.VideoWriter('./output/' + outFile + '.avi',fourcc, 24.0, (vRes,hRes))
+# Set output file name
+# ==========================
+# Switch these out when you're done
+# ==========================
+out = cv2.VideoWriter('./output/restored.avi',fourcc, 24.0, (1920,1080)) # Hard-coded for testing
+#out = cv2.VideoWriter('./output/' + outFile + '.avi',fourcc, framerate, (vRes,hRes))
 
 # ==========================
 # Filters
@@ -99,7 +101,7 @@ while(currentFrame <= frameEnd):
 
     # Repairs frame and saves it in png file
     # (png is used for its lossless quality)
-    progressReport = ("Processing frame: " + str(currentFrame))
+    progressReport = ("Currently processing frame: " + str(currentFrame))
     print(progressReport, end="\r")
 
     # Pick filter based on user input
@@ -108,18 +110,14 @@ while(currentFrame <= frameEnd):
         fixed = cv2.fastNlMeansDenoisingColored(frame,None,10,10,7,21)
     elif method == 2:
         # Deblur filter
-        #gass = cv2.GaussianBlur(frame, (9,9), 10.0)
-        #fixed = cv2.addWeighted(frame, 1.5, gass, -0.5, 0, frame)
-        #Scikit Image method
-        #frame = img_as_float(frame)
-        #blurred = skimage.filters.gaussian(frame, blur_size)
-        #highpass = frame - unsharp_strength * blurred
-        #fixed = frame + highpass
-
-        frame = color.rgb2gray
-        frame = convolve2d(frame, psf, 'same')
+        frame = frame.astype(np.float32) / 255.0
+        for i in range(frame.shape[-1]):
+            frame[:,:,i] = convolve2d(frame[:,:,i], psf, mode='same')
         frame += 0.1 * frame.std() * np.random.standard_normal(frame.shape)
-        fixed = skimage.restoration.unsupervised_wiener(frame, psf)
+        fixed = np.zeros(frame.shape)
+        for i in range(frame.shape[-1]):
+            fixed[:,:,i], _ = skimage.restoration.unsupervised_wiener(frame[:,:,i], psf)
+        fixed = np.clip(fixed * 255.0,0,255).astype(np.uint8)
     elif method == 3:
         print("other")
 
