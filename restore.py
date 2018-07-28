@@ -25,11 +25,9 @@ print("==============================")
 # ==========================
 # Parameters
 # ==========================
-# Get parameters from user
-# vid.mp4 parameters: 1920x1080, 24fps, 0:36 duration
 videoName = input('Enter the file name of the video including the file extension (myvideo.mp4): ')
-#vRes = int(input("Enter the vertical resolution of the video in pixels: "))
-#hRes = int(input("Enter the horizontal resolution of the video in pixels: "))
+vRes = int(input("Enter the vertical resolution of the video in pixels: "))
+hRes = int(input("Enter the horizontal resolution of the video in pixels: "))
 duration = int(input('Enter the duration of the video in seconds: '))
 framerate = int(input('Enter the frame rate of the video in frames per second: '))
 frameSeq = ((duration*framerate)-1)
@@ -43,14 +41,14 @@ if timeEnd == 0:
     frameEnd = frameSeq
 else:
     frameEnd = ((timeEnd*framerate)-1)
-#outFile = input("Enter the output name of the video without a file extension: ")
+outFile = input("Enter the output name of the video without a file extension: ")
 
 # Selecting a repair method
 print("==============================")
 print("Select a repair method by typing only the number: ")
 print("==============================")
-print("1 - Denoise")
-print("2 - Deblur")
+print("1 - Noise / Artifacting")
+print("2 - Blur")
 print("==============================")
 method = int(input('Your selection: '))
 print("==============================")
@@ -58,8 +56,6 @@ if method == 1:
     print("Denoising selected.")
 elif method == 2:
     print("Debluring selected.")
-    #unsharp_strength = 0.8
-    #blur_size = 8 # Standard deviation in pixels
     psf = (np.ones((5,5)) / 25)
 elif method == 3:
     print("Other")
@@ -84,11 +80,7 @@ vid.set(1,currentFrame)
 fourcc = cv2.VideoWriter_fourcc(*'DIVX')
 
 # Set output file name
-# ==========================
-# Switch these out when you're done
-# ==========================
-out = cv2.VideoWriter('./output/restored.avi',fourcc, 24.0, (1920,1080)) # Hard-coded for testing
-#out = cv2.VideoWriter('./output/' + outFile + '.avi',fourcc, framerate, (vRes,hRes))
+out = cv2.VideoWriter('./output/' + outFile + '.avi',fourcc, framerate, (vRes,hRes))
 
 # ==========================
 # Filters
@@ -106,7 +98,7 @@ while(currentFrame <= frameEnd):
 
     # Pick filter based on user input
     if method == 1:
-        # Denoise filter
+        # Denoise/artifacting filter
         fixed = cv2.fastNlMeansDenoisingColored(frame,None,10,10,7,21)
     elif method == 2:
         # Deblur filter
@@ -123,10 +115,6 @@ while(currentFrame <= frameEnd):
 
     
     out.write(fixed)
-
-    # Individual image writing (Troubleshooting)
-    #name = './output/frame' + str(currentFrame) + '.png'
-    #cv2.imwrite(name, fixed)
 
     # To stop duplicate images
     currentFrame += 1
